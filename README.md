@@ -9,24 +9,21 @@ Built using **Next.js 16 (App Router)**, **Framer Motion**, and **Tailwind CSS**
 ## 🚀 Key Features
 
 ### 🖥️ 1. Authentic Boot & Authentication
-* **BIOS & Kernel Boot Diagnostics**: Interactive console log simulation booting services, verifying hashes, mounting volumes, and checking security firewall logs.
-* **Biometric Authentication Portal**: Face scanning animation scanner and pin credential prompt screen for accessing the main workspace.
+* **BIOS & Kernel Boot Diagnostics**: Interactive console log simulation booting services, verifying hashes, mounting volumes, and checking security firewall logs. Can be bypassed instantly via the `BYPASS KERNEL` button.
+* **Biometric Authentication Portal**: Face scanning animation scanner and pin credential prompt screen. Features a `BIOMETRIC FACIAL SCAN` button (which simulates a biometric scan overlay and automatically unlocks on match) and an `Unlock` button to bypass credential input.
 
 ### 🎛️ 2. Desktop Environment (XFCE Style)
 * **Draggable Window Manager**: Multi-window support with individual stacking order (`z-index`) depth focus, snapping boundaries, window maximize/minimize, and clean drag-drop physics.
-* **Live System metrics panel**: Real-time graphs styled as XFCE taskbar plugins displaying live CPU and RAM usage charts alongside `htop` style LED progress blocks.
-* **Quick Access Icons**: Desktop links launching core modules, viewing local repositories, PDF resume downloads, and connecting to GitHub/LinkedIn/LeetCode socials.
+* **Live System metrics panel**: Real-time graphs styled as XFCE taskbar plugins displaying CPU and RAM usage charts. Collapses on mobile to show space-saving compact readouts.
+* **Quick Access Icons**: Desktop links launching core modules, viewing local repositories, PDF resume downloads, and connecting to GitHub/LinkedIn/LeetCode socials. Configured as a responsive wrapped grid on mobile screens.
+* **Active App Dock / Switcher (New)**: Persistent status tray in the bottom footer listing open apps. Tapping a dock icon toggles the app's focus, minimizes it, or restores it (mimicking real LightDM/XFCE window behavior).
+* **Top-Left Application Menu (New)**: Tapping "KALI LINUX" in the top bar launches a dropdown menu to run any app directly.
 
 ### 🛠️ 3. Embedded Application Suites
-* **Root Terminal (CLI Shell)**: Functional terminal emulator containing autocomplete suggestions, shell command history (arrow keys), and interactive scripts:
-  * `help` - Lists active modules.
-  * `about` - Context about Shubh's current work.
-  * `skills` - Dynamic category listing of tools & programming languages.
-  * `projects` - Highlights machine learning & threat classifiers.
-  * `clear` - Wipes terminal history.
-* **SOC Cyber Lab**: Simulated target vulnerability intrusion interface showcasing web security tests, log monitoring, and target assessment vectors.
-* **Global Threat Map**: Visual network radar and attack map overlay showing real-time geographical server load and threat locations.
-* **Metasploit Console (MSF)**: Specialized sub-terminal simulating target scans, exploit injections, payload deployments, and terminal session shells.
+* **Root Terminal (CLI Shell)**: Functional terminal emulator containing autocomplete suggestions, shell command history, and interactive scripts. Supported commands include `help`, `about`, `skills`, `projects`, `clear`, `socials`, `scan network`, `show threat-intel`, `open browser`, etc. Features a **Quick CLI Shortcut Bar** and **tap-to-autocomplete suggestion buttons** to enable a fully touch-friendly, keyboard-free terminal experience on mobile viewports.
+* **SOC Cyber Lab**: Simulated target vulnerability intrusion interface showcasing web security tests, log monitoring, and target assessment vectors. Fits nicely on mobile viewports with row-wrapping.
+* **Global Threat Map**: Visual network radar and attack map overlay showing geographical server load and threat locations. Stacks vertically on mobile with a grid layout for metrics.
+* **Metasploit Console (MSF)**: Specialized sub-terminal simulating target scans, exploit injections, payload deployments, and terminal session shells. Includes a **Quick MSF action bar** to easily trigger scanning and exploit payloads without typing.
 * **Welcome Portfolio Browser**: Embedded sleek viewer mapping education profiles (IIT Ropar, IIT Kanpur, IIIT Delhi, JKLU) and honors.
 
 ---

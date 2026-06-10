@@ -20,6 +20,7 @@ import {
   Mail,
   Maximize2,
   Minimize2,
+  Minus,
   X,
   Monitor,
   CheckCircle2,
@@ -104,6 +105,7 @@ interface WindowFrameProps {
   icon?: React.ReactNode;
   isOpen: boolean;
   onClose: () => void;
+  onMinimize?: () => void;
   onFocus: () => void;
   zIndex: number;
   initialX?: number;
@@ -118,6 +120,7 @@ function WindowFrame({
   icon,
   isOpen,
   onClose,
+  onMinimize,
   onFocus,
   zIndex,
   initialX = 160,
@@ -197,9 +200,9 @@ function WindowFrame({
         zIndex,
         position: "absolute",
         left: maximized ? 0 : pos.x,
-        top: maximized ? 44 : pos.y,
+        top: maximized ? 48 : pos.y,
         width: maximized ? "100vw" : size.width,
-        height: maximized ? "calc(100vh - 84px)" : size.height,
+        height: maximized ? "calc(100vh - 92px)" : size.height,
       }}
       className="glassmorphism rounded-lg flex flex-col overflow-hidden shadow-2xl border border-white/10 select-none glow-secondary/5"
     >
@@ -208,28 +211,40 @@ function WindowFrame({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="win-title h-12 bg-black/85 flex items-center justify-between px-4 border-b border-white/10 cursor-move relative touch-none"
+        className="win-title h-10 md:h-12 bg-black/85 flex items-center justify-between px-3 md:px-4 border-b border-white/10 cursor-move relative touch-none"
       >
         {/* Left: Window Icon & Title */}
         <div className="flex items-center gap-2.5 z-10 pointer-events-none">
           {icon && <span className="text-[#00BCD4] flex items-center">{icon}</span>}
-          <span className="font-mono text-xs md:text-sm text-white/90 font-bold tracking-wider">
+          <span className="font-mono text-xs md:text-sm text-white/90 font-bold tracking-wider truncate max-w-[150px] sm:max-w-none">
             {title}
           </span>
         </div>
         
         {/* Right: Controls */}
-        <div className="flex items-center gap-3 z-10">
+        <div className="flex items-center gap-2 sm:gap-3 z-10">
+          {onMinimize && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMinimize();
+              }}
+              className="p-1 sm:p-1.5 hover:bg-white/10 rounded transition-colors flex items-center justify-center cursor-pointer"
+              title="Minimize"
+            >
+              <Minus size={14} className="text-[#00BCD4]" />
+            </button>
+          )}
           <button
             onClick={() => setMaximized(!maximized)}
-            className="p-1.5 hover:bg-white/10 rounded transition-colors flex items-center justify-center cursor-pointer"
+            className="p-1 sm:p-1.5 hover:bg-white/10 rounded transition-colors flex items-center justify-center cursor-pointer"
             title={maximized ? "Restore Down" : "Maximize"}
           >
             {maximized ? <Minimize2 size={14} className="text-[#00BCD4]" /> : <Maximize2 size={14} className="text-[#00BCD4]" />}
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-danger/25 rounded transition-colors flex items-center justify-center cursor-pointer"
+            className="p-1 sm:p-1.5 hover:bg-danger/25 rounded transition-colors flex items-center justify-center cursor-pointer"
             title="Close"
           >
             <X size={14} className="text-danger" />
@@ -238,7 +253,7 @@ function WindowFrame({
       </div>
 
       {/* Content Container */}
-      <div className="flex-1 overflow-auto bg-[#121212]/75 text-[#E2E8F0] p-4 font-sans relative">
+      <div className="flex-1 overflow-auto bg-[#121212]/75 text-[#E2E8F0] p-2.5 sm:p-4 font-sans relative">
         {children}
       </div>
     </motion.div>
@@ -316,60 +331,62 @@ function CyberLab() {
   };
 
   return (
-    <div className="space-y-6 font-mono text-xs">
+    <div className="space-y-4 sm:space-y-6 font-mono text-xs">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Nmap Terminal */}
-        <div className="border border-white/10 p-4 bg-black/70 rounded-lg flex flex-col h-64 justify-between">
+        <div className="border border-white/10 p-3 sm:p-4 bg-black/70 rounded-lg flex flex-col h-64 justify-between">
           <div className="space-y-2 overflow-y-auto max-h-48 pr-2">
-            <div className="flex justify-between items-center border-b border-white/10 pb-2">
-              <span className="text-secondary font-bold">PORT ROUTER SCANNER</span>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2 gap-1.5">
+              <span className="text-secondary font-bold text-[10px] sm:text-xs">PORT ROUTER SCANNER</span>
               <button
                 onClick={triggerScan}
                 disabled={scanning}
-                className="px-2.5 py-1 bg-secondary/20 hover:bg-secondary/30 border border-secondary/40 text-secondary rounded flex items-center gap-1 disabled:opacity-50"
+                className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-secondary/20 hover:bg-secondary/30 border border-secondary/40 text-secondary rounded flex items-center gap-1 disabled:opacity-50 text-[9px] sm:text-xs cursor-pointer"
               >
-                <Search size={12} /> {scanning ? "RUNNING..." : "SCAN NETWORK"}
+                <Search size={10} className="sm:w-3 sm:h-3" /> {scanning ? "RUNNING..." : "SCAN"}
               </button>
             </div>
             {scanOutput.map((l, idx) => (
-              <div key={idx} className={l.startsWith("[+]") ? "text-primary" : "text-white/80"}>
+              <div key={idx} className={l.startsWith("[+]") ? "text-primary text-[10px] sm:text-xs" : "text-white/80 text-[10px] sm:text-xs"}>
                 {l}
               </div>
             ))}
           </div>
-          <div className="text-[10px] opacity-40 text-right">Kali Linux Netscan Module</div>
+          <div className="text-[9px] sm:text-[10px] opacity-40 text-right">Kali Linux Netscan Module</div>
         </div>
 
         {/* Live Attack map log */}
-        <div className="border border-white/10 p-4 bg-black/70 rounded-lg flex flex-col h-64 justify-between">
+        <div className="border border-white/10 p-3 sm:p-4 bg-black/70 rounded-lg flex flex-col h-64 justify-between">
           <div className="border-b border-white/10 pb-2 mb-2 flex justify-between items-center">
-            <span className="text-danger font-bold flex items-center gap-1">
-              <Shield size={12} className="animate-pulse text-danger" /> SOC WIRESHARK INTRUSION
+            <span className="text-danger font-bold flex items-center gap-1 text-[10px] sm:text-xs">
+              <Shield size={12} className="animate-pulse text-danger animate-duration-1000" /> SOC WIRESHARK INTRUSION
             </span>
-            <span className="text-[10px] bg-danger/10 border border-danger/30 text-danger px-1.5 rounded">MONITORING</span>
+            <span className="text-[9px] sm:text-[10px] bg-danger/10 border border-danger/30 text-danger px-1.5 rounded">MONITORING</span>
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-1.5 pr-2">
             {packets.map((p, idx) => (
               <div
                 key={idx}
-                className={`p-1.5 border rounded flex justify-between gap-2 items-center ${
+                className={`p-1.5 border rounded flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-2 sm:items-center ${
                   p.status === "ATTACK" ? "bg-danger/10 border-danger/40 text-danger font-bold" : "bg-white/5 border-white/5 text-white/80"
                 }`}
               >
-                <span>{p.time}</span>
-                <span>{p.src}</span>
-                <span className="text-secondary">{p.protocol}</span>
-                <span className="truncate max-w-[150px]">{p.info}</span>
+                <div className="flex justify-between items-center sm:contents gap-2 text-[9px] sm:text-[10px]">
+                  <span className="opacity-60">{p.time}</span>
+                  <span className="truncate text-white font-mono">{p.src}</span>
+                  <span className="text-secondary font-bold font-mono">{p.protocol}</span>
+                </div>
+                <span className="truncate text-[10px] sm:max-w-[150px] opacity-90 sm:opacity-100">{p.info}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="border border-white/10 p-4 bg-black/40 rounded-lg">
-        <h4 className="text-secondary font-bold mb-1">MALWARE & static ANALYSIS LAB</h4>
-        <p className="text-[#E2E8F0]/70 leading-relaxed">
+      <div className="border border-white/10 p-3 sm:p-4 bg-black/40 rounded-lg">
+        <h4 className="text-secondary font-bold mb-1 text-[10px] sm:text-xs">MALWARE & static ANALYSIS LAB</h4>
+        <p className="text-[#E2E8F0]/70 leading-relaxed text-[10px] sm:text-xs">
           This system models machine learning-based signature detection. Features are extracted dynamically and analyzed through XGBoost networks to flag system injections, Trojan loads, and payload deliveries before execution.
         </p>
       </div>
@@ -853,6 +870,26 @@ function MSFConsole() {
           </div>
         ))}
       </div>
+      {/* Quick MSF shortcuts (excellent for mobile) */}
+      <div className="flex flex-wrap gap-1 px-3 py-1.5 select-none text-[9px] font-mono text-white/45 border-t border-white/5 bg-black/40">
+        <span className="self-center mr-0.5 font-sans">Quick MSF:</span>
+        {["help", "search exploit", "use exploit/windows/smb/ms17_010_eternalblue", "show options", "run"].map((cmd) => {
+          const label = cmd.startsWith("use") ? "use eternalblue" : cmd;
+          return (
+            <button
+              key={cmd}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleMSF(cmd);
+              }}
+              className="px-1.5 py-0.5 bg-white/5 hover:bg-[#00BCD4]/10 border border-white/10 hover:border-[#00BCD4]/40 text-white/70 hover:text-[#00BCD4] rounded text-[9px] cursor-pointer transition-all"
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex items-center gap-1 px-3 py-2 border-t border-white/10">
         <span className="text-[#4CAF50] text-xs font-bold whitespace-nowrap">{prompt}</span>
         <input
@@ -862,7 +899,7 @@ function MSFConsole() {
           autoFocus
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") handleMSF(input); }}
-          className="flex-1 bg-transparent border-none outline-none text-white text-xs font-mono"
+          className="flex-1 bg-transparent border-none outline-none text-white text-sm sm:text-xs font-mono focus:ring-0"
           spellCheck={false}
           autoComplete="off"
         />
@@ -877,16 +914,15 @@ function MSFConsole() {
 function BrowserApp() {
   return (
     <div className="flex flex-col space-y-6 text-slate-200 font-sans p-2">
-      {/* Header Profile Section */}
       <div className="flex flex-col md:flex-row items-center gap-5 border-b border-white/10 pb-6">
         <img
           src="/shubhdixit.png"
           alt="Shubh Dixit"
-          className="w-24 h-24 rounded-full object-cover border border-[#00BCD4] shadow-lg shadow-[#00BCD4]/20"
+          className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border border-[#00BCD4] shadow-lg shadow-[#00BCD4]/20"
         />
         <div className="text-center md:text-left space-y-1.5">
-          <h2 className="text-3xl font-extrabold text-white tracking-wide font-mono">SHUBH DIXIT</h2>
-          <p className="text-sm font-semibold text-[#00BCD4]">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-wide font-mono">SHUBH DIXIT</h2>
+          <p className="text-xs sm:text-sm font-semibold text-[#00BCD4] leading-relaxed">
             AI Research Intern • Cybersecurity Enthusiast • Full Stack Developer
           </p>
         </div>
@@ -1404,8 +1440,22 @@ Hints: Type 'cat flag.txt' to retrieve the hidden flag.
         })}
 
         {hints.length > 1 && (
-          <div className="text-[#00BCD4] font-semibold">
-            Suggestions: {hints.join("  |  ")}
+          <div className="flex flex-wrap gap-1.5 items-center py-1 select-none text-[#00BCD4] font-semibold text-xs font-mono z-20">
+            <span className="mr-1">Suggestions:</span>
+            {hints.map((hint) => (
+              <button
+                key={hint}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setInput(hint);
+                  setHints([]);
+                  inputRef.current?.focus();
+                }}
+                className="px-2 py-0.5 bg-secondary/15 hover:bg-secondary/30 border border-secondary/30 text-secondary rounded cursor-pointer transition-colors text-[10px]"
+              >
+                {hint}
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -1419,11 +1469,30 @@ Hints: Type 'cat flag.txt' to retrieve the hidden flag.
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent border-none outline-none text-white font-mono"
+            className="flex-1 bg-transparent border-none outline-none text-white text-sm sm:text-xs font-mono focus:ring-0"
             autoFocus
             spellCheck={false}
             autoComplete="off"
           />
+        </div>
+
+        {/* Quick CLI Shortcuts (excellent for mobile) */}
+        <div className="flex flex-wrap gap-1.5 border-t border-white/5 pt-1.5 select-none print:hidden z-10">
+          <span className="text-[9px] text-white/40 self-center mr-0.5 font-sans">Quick Command:</span>
+          {["help", "about", "skills", "projects", "clear"].map((cmd) => (
+            <button
+              key={cmd}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCommand(cmd);
+                setInput("");
+                setHints([]);
+              }}
+              className="px-2 py-0.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-secondary/40 text-white/80 hover:text-[#00BCD4] rounded font-mono text-[9px] cursor-pointer transition-all"
+            >
+              {cmd}
+            </button>
+          ))}
         </div>
 
         {/* Navigation Guide */}
@@ -1663,15 +1732,15 @@ function SystemMonitorWidget({
   const activeSegments = Math.round((value / 100) * totalSegments);
 
   return (
-    <div className="flex items-center gap-2 px-2 py-0.5 bg-[#121212]/80 border border-white/10 rounded shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)] backdrop-blur-sm select-none">
+    <div className="flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2 py-0.5 bg-[#121212]/80 border border-white/10 rounded shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)] backdrop-blur-sm select-none">
       {/* Icon and Label */}
-      <div className="flex items-center gap-1 min-w-[44px]">
+      <div className="flex items-center gap-1 min-w-[32px] sm:min-w-[44px]">
         <span style={{ color }} className="opacity-90">{icon}</span>
         <span className="text-[9px] text-white/77 font-mono font-bold uppercase tracking-wider">{label}</span>
       </div>
 
       {/* Mini XFCE Graph */}
-      <div className="relative w-[50px] h-[18px] bg-black/60 border border-white/5 rounded-sm overflow-hidden flex items-center">
+      <div className="hidden sm:flex relative w-[50px] h-[18px] bg-black/60 border border-white/5 rounded-sm overflow-hidden items-center">
         <svg width={width} height={height} className="overflow-visible">
           <defs>
             <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
@@ -1694,7 +1763,7 @@ function SystemMonitorWidget({
       </div>
 
       {/* htop style progress bar */}
-      <div className="flex items-center gap-0.5 bg-black/50 border border-white/5 rounded px-1 py-0.5 h-[18px] text-[8px] font-mono">
+      <div className="hidden md:flex items-center gap-0.5 bg-black/50 border border-white/5 rounded px-1 py-0.5 h-[18px] text-[8px] font-mono">
         <span className="text-white/35 font-semibold font-mono">[</span>
         <div className="flex gap-[0.5px]">
           {Array.from({ length: totalSegments }).map((_, idx) => {
@@ -1717,7 +1786,7 @@ function SystemMonitorWidget({
       </div>
 
       {/* Percentage Value */}
-      <span className="text-[10px] font-bold text-white min-w-[28px] text-right font-mono">
+      <span className="text-[10px] font-bold text-white min-w-[20px] sm:min-w-[28px] text-right font-mono">
         {value}%
       </span>
     </div>
@@ -1744,18 +1813,30 @@ export default function Home() {
     "msf": false,
     projects: false
   });
+
+  // Minimized apps state
+  const [minimizedApps, setMinimizedApps] = useState<{ [key: string]: boolean }>({
+    terminal: false,
+    browser: false,
+    "cyber-lab": false,
+    "threat-map": false,
+    "msf": false,
+    projects: false
+  });
+
+  const [isAppMenuOpen, setIsAppMenuOpen] = useState(false);
   
   // Stacking z-indices
   const [zIndices, setZIndices] = useState<{ [key: string]: number }>({
-    terminal: 5,
-    browser: 12,
-    "cyber-lab": 5,
-    "threat-map": 5,
-    "msf": 5,
-    projects: 5
+    terminal: 20,
+    browser: 25,
+    "cyber-lab": 20,
+    "threat-map": 20,
+    "msf": 20,
+    projects: 20
   });
 
-  const [topZ, setTopZ] = useState(11);
+  const [topZ, setTopZ] = useState(25);
   const [sysCpu, setSysCpu] = useState(12);
   const [sysRam, setSysRam] = useState(38);
   const [cpuHistory, setCpuHistory] = useState<number[]>(Array(15).fill(12));
@@ -1765,21 +1846,53 @@ export default function Home() {
     const nextZ = topZ + 1;
     setTopZ(nextZ);
     setZIndices(prev => ({ ...prev, [appKey]: nextZ }));
+    setMinimizedApps(prev => ({ ...prev, [appKey]: false }));
   };
 
   const toggleApp = (appKey: string) => {
     setOpenApps(prev => {
-      const state = !prev[appKey];
-      if (state) {
-        focusApp(appKey);
+      const isCurrentlyOpen = prev[appKey];
+      if (isCurrentlyOpen) {
+        if (minimizedApps[appKey]) {
+          focusApp(appKey);
+          return prev;
+        } else {
+          const nextState = !isCurrentlyOpen;
+          return { ...prev, [appKey]: nextState };
+        }
+      } else {
+        setTimeout(() => focusApp(appKey), 50);
+        return { ...prev, [appKey]: true };
       }
-      return { ...prev, [appKey]: state };
     });
+  };
+
+  const minimizeApp = (appKey: string) => {
+    setMinimizedApps(prev => ({ ...prev, [appKey]: true }));
   };
 
   const openAppExplicit = (appKey: string) => {
     setOpenApps(prev => ({ ...prev, [appKey]: true }));
     focusApp(appKey);
+  };
+
+  const handleDockItemClick = (appKey: string) => {
+    const isOpen = openApps[appKey];
+    const isMinimized = minimizedApps[appKey];
+    
+    // Find if it has the highest z-index among open, non-minimized apps
+    const openNonMinApps = Object.keys(openApps).filter(k => openApps[k] && !minimizedApps[k]);
+    const isFocused = isOpen && !isMinimized && openNonMinApps.every(k => zIndices[appKey] >= zIndices[k]);
+    
+    if (!isOpen) {
+      openAppExplicit(appKey);
+    } else if (isMinimized) {
+      focusApp(appKey);
+    } else if (!isFocused) {
+      focusApp(appKey);
+    } else {
+      minimizeApp(appKey);
+    }
   };
 
   // BIOS logs generation
@@ -1840,17 +1953,17 @@ export default function Home() {
           <motion.div
             key="bios"
             exit={{ opacity: 0 }}
-            className="w-full h-full bg-[#050505] p-8 text-primary font-mono text-xs flex flex-col justify-between"
+            className="w-full h-full bg-[#050505] p-4 sm:p-8 text-primary font-mono text-[10px] sm:text-xs flex flex-col justify-between"
           >
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               {bootLogs.map((log, idx) => (
-                <div key={idx}>
+                <div key={idx} className="break-all sm:break-normal">
                   <span className="text-secondary">[BOOT]</span> {log}
                 </div>
               ))}
-              <span className="inline-block w-2.5 h-4 bg-primary animate-pulse" />
+              <span className="inline-block w-2 h-3 sm:w-2.5 sm:h-4 bg-primary animate-pulse" />
             </div>
-            <div className="text-[10px] opacity-40">KALI LINUX rolling V2026.2 BIOS SCREEN</div>
+            <div className="text-[9px] sm:text-[10px] opacity-40">KALI LINUX rolling V2026.2 BIOS SCREEN</div>
           </motion.div>
         )}
 
@@ -1861,37 +1974,37 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full h-full bg-[#050505] flex flex-col justify-center items-center font-mono text-xs"
+            className="w-full h-full bg-[#050505] flex flex-col justify-center items-center font-mono text-[10px] sm:text-xs p-4 sm:p-0"
           >
-            <div className="max-w-md w-full px-6 space-y-4">
-              <div className="text-center font-bold tracking-widest text-primary">INITIALIZING SECURITIES CORE</div>
-              <div className="border border-primary/25 p-4 bg-black/85 rounded font-mono text-[11px] space-y-2 shadow-[0_0_20px_rgba(0,255,136,0.05)]">
-                <div className="flex gap-3">
-                  <span className="text-primary font-bold">[  OK  ]</span>
-                  <span className="text-primary/90 font-medium">Started LVM2 PV scan on device 8:2.</span>
+            <div className="max-w-md w-full px-4 sm:px-6 space-y-3 sm:space-y-4">
+              <div className="text-center font-bold tracking-widest text-primary text-xs sm:text-sm">INITIALIZING SECURITIES CORE</div>
+              <div className="border border-primary/25 p-3 sm:p-4 bg-black/85 rounded font-mono text-[9px] sm:text-[11px] space-y-1.5 sm:space-y-2 shadow-[0_0_20px_rgba(0,255,136,0.05)] max-h-[60vh] overflow-y-auto">
+                <div className="flex gap-2 sm:gap-3">
+                  <span className="text-primary font-bold whitespace-nowrap">[  OK  ]</span>
+                  <span className="text-primary/95 font-medium leading-tight">Started LVM2 PV scan on device 8:2.</span>
                 </div>
-                <div className="flex gap-3">
-                  <span className="text-primary font-bold">[  OK  ]</span>
-                  <span className="text-primary/90 font-medium">Connecting to Neural Network engine database...</span>
+                <div className="flex gap-2 sm:gap-3">
+                  <span className="text-primary font-bold whitespace-nowrap">[  OK  ]</span>
+                  <span className="text-primary/95 font-medium leading-tight">Connecting to Neural Network engine database...</span>
                 </div>
-                <div className="flex gap-3">
-                  <span className="text-primary font-bold">[  OK  ]</span>
-                  <span className="text-primary/90 font-medium">Mounted /home/shubhdixit encrypt container.</span>
+                <div className="flex gap-2 sm:gap-3">
+                  <span className="text-primary font-bold whitespace-nowrap">[  OK  ]</span>
+                  <span className="text-primary/95 font-medium leading-tight">Mounted /home/shubhdixit encrypt container.</span>
                 </div>
-                <div className="flex gap-3">
-                  <span className="text-warning font-bold">[ WARN ]</span>
-                  <span className="text-warning/90 font-medium">Isolated non-critical device bypass parameters.</span>
+                <div className="flex gap-2 sm:gap-3">
+                  <span className="text-warning font-bold whitespace-nowrap">[ WARN ]</span>
+                  <span className="text-warning/90 font-medium leading-tight">Isolated non-critical device bypass parameters.</span>
                 </div>
-                <div className="flex gap-3">
-                  <span className="text-primary font-bold">[  OK  ]</span>
-                  <span className="text-primary/90 font-medium">Started Threat Intelligence security core firewall.</span>
+                <div className="flex gap-2 sm:gap-3">
+                  <span className="text-primary font-bold whitespace-nowrap">[  OK  ]</span>
+                  <span className="text-primary/90 font-medium leading-tight">Started Threat Intelligence security core firewall.</span>
                 </div>
-                <div className="flex gap-3">
-                  <span className="text-danger font-bold">[FAILED]</span>
-                  <span className="text-danger/90 font-medium">Failed to mount guest user space (Root login active).</span>
+                <div className="flex gap-2 sm:gap-3">
+                  <span className="text-danger font-bold whitespace-nowrap">[FAILED]</span>
+                  <span className="text-danger/90 font-medium leading-tight">Failed to mount guest user space (Root login active).</span>
                 </div>
               </div>
-              <div className="w-full bg-primary/10 h-2 rounded overflow-hidden relative border border-primary/20">
+              <div className="w-full bg-primary/10 h-1.5 sm:h-2 rounded overflow-hidden relative border border-primary/20">
                 <motion.div
                   initial={{ left: "-100%" }}
                   animate={{ left: "100%" }}
@@ -1899,11 +2012,11 @@ export default function Home() {
                   className="absolute w-1/2 h-full bg-primary shadow-[0_0_8px_#00FF88]"
                 />
               </div>
-              <div className="text-[10px] text-center text-primary/50">Initializing user account...</div>
+              <div className="text-[9px] sm:text-[10px] text-center text-primary/50">Initializing user account...</div>
             </div>
             <button
               onClick={() => setFlowState("AUTH")}
-              className="absolute bottom-10 px-4 py-2 border border-primary/20 bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs rounded transition-colors"
+              className="absolute bottom-8 sm:bottom-10 px-3 py-1.5 sm:px-4 sm:py-2 border border-primary/20 bg-primary/10 hover:bg-primary/20 text-primary font-bold text-[10px] sm:text-xs rounded transition-colors cursor-pointer"
             >
               BYPASS KERNEL
             </button>
@@ -1917,52 +2030,52 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full h-full bg-[#050505] flex flex-col justify-center items-center p-6 relative bg-cover bg-center bg-no-repeat"
+            className="w-full h-full bg-[#050505] flex flex-col justify-center items-center p-4 sm:p-6 relative bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: "url('/pink-kali.png')" }}
           >
             <MatrixRain />
             
-            <div className="z-10 w-full max-w-sm glassmorphism p-6 rounded-xl flex flex-col items-center space-y-6 text-center shadow-2xl relative glow-secondary/10">
-              <div className="flex flex-col items-center gap-3">
+            <div className="z-10 w-full max-w-sm glassmorphism p-5 sm:p-6 rounded-xl flex flex-col items-center space-y-4 sm:space-y-6 text-center shadow-2xl relative glow-secondary/10">
+              <div className="flex flex-col items-center gap-2.5 sm:gap-3">
                 <img
                   src="/kali-logo.svg"
                   alt="Kali Linux"
-                  className="w-16 h-16 object-contain filter drop-shadow-[0_0_12px_rgba(0,212,255,0.4)] animate-bounce"
+                  className="w-12 h-12 sm:w-16 sm:h-16 object-contain filter drop-shadow-[0_0_12px_rgba(0,212,255,0.4)] animate-bounce"
                   style={{ animationDuration: "3s" }}
                 />
                 <div>
-                  <h2 className="text-lg font-bold font-mono tracking-wide text-white">SHUBH DIXIT</h2>
-                  <p className="text-[10px] text-secondary font-mono tracking-wider">AI RESEARCHER & SECURITY DEV</p>
+                  <h2 className="text-base sm:text-lg font-bold font-mono tracking-wide text-white">SHUBH DIXIT</h2>
+                  <p className="text-[9px] sm:text-[10px] text-secondary font-mono tracking-wider">AI RESEARCHER & SECURITY DEV</p>
                 </div>
               </div>
 
               {/* Face scan effect */}
               {isFaceScanning ? (
-                <div className="w-full p-4 border border-secondary/35 bg-secondary/5 rounded-lg flex flex-col items-center justify-center space-y-2 relative overflow-hidden">
+                <div className="w-full p-3 sm:p-4 border border-secondary/35 bg-secondary/5 rounded-lg flex flex-col items-center justify-center space-y-2 relative overflow-hidden">
                   <motion.div
                     initial={{ top: 0 }}
                     animate={{ top: "100%" }}
                     transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
                     className="absolute left-0 right-0 h-0.5 bg-secondary shadow-lg z-20"
                   />
-                  <Eye className="text-secondary animate-pulse" size={24} />
-                  <span className="font-mono text-[10px] text-secondary">
+                  <Eye className="text-secondary animate-pulse" size={20} />
+                  <span className="font-mono text-[9px] sm:text-[10px] text-secondary">
                     {faceScanSuccess ? "IDENTIFIED SUCCESSFUL" : "SCANNING FACIAL ATTRIBUTES..."}
                   </span>
                 </div>
               ) : (
-                <div className="w-full space-y-3">
+                <div className="w-full space-y-2.5 sm:space-y-3">
                   <div className="flex gap-2">
                     <input
                       type="password"
                       placeholder="ENTER PIN OR CREDENTIALS"
                       value={authPassword}
                       onChange={e => setAuthPassword(e.target.value)}
-                      className="flex-1 px-3 py-2 bg-black/60 border border-white/10 rounded font-mono text-center text-xs text-secondary outline-none focus:border-secondary"
+                      className="flex-1 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-black/60 border border-white/10 rounded font-mono text-center text-[10px] sm:text-xs text-secondary outline-none focus:border-secondary"
                     />
                     <button
                       onClick={() => setFlowState("OS")}
-                      className="px-3 bg-secondary/20 hover:bg-secondary/30 text-secondary border border-secondary/40 rounded flex items-center justify-center"
+                      className="px-3 bg-secondary/20 hover:bg-secondary/30 text-secondary border border-secondary/40 rounded flex items-center justify-center cursor-pointer"
                     >
                       <Unlock size={14} />
                     </button>
@@ -1970,14 +2083,14 @@ export default function Home() {
 
                   <button
                     onClick={triggerFaceScan}
-                    className="w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary font-mono text-xs font-bold rounded flex items-center justify-center gap-1.5 transition-colors"
+                    className="w-full py-2 bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary font-mono text-[10px] sm:text-xs font-bold rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Eye size={14} /> BIOMETRIC FACIAL SCAN
                   </button>
                 </div>
               )}
 
-              <div className="text-[9px] opacity-40 font-mono">Bypass: Click Facial Scan or submit credentials.</div>
+              <div className="text-[8px] sm:text-[9px] opacity-40 font-mono">Bypass: Click Facial Scan or submit credentials.</div>
             </div>
           </motion.div>
         )}
@@ -1996,17 +2109,78 @@ export default function Home() {
             <MatrixRain />
 
             {/* Taskbar Header */}
-            <header className="z-50 h-12 w-full glassmorphism flex justify-between items-center px-4 border-b border-white/10 bg-black/45 shadow-lg">
-              <div className="flex items-center gap-4">
-                <span className="font-sans font-bold text-base tracking-wider text-slate-100 flex items-center gap-2">
-                  <img src="/kali-logo.svg" className="w-7 h-7 object-contain filter drop-shadow-[0_0_8px_rgba(0,188,212,0.5)] animate-pulse" alt="Kali Logo" />
-                  KALI LINUX
-                </span>
-                <span className="text-xs bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded font-mono font-bold">ROOT SESSION</span>
+            <header className="z-50 h-12 w-full glassmorphism flex justify-between items-center px-3 sm:px-4 border-b border-white/10 bg-black/45 shadow-lg relative">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <button
+                  onClick={() => setIsAppMenuOpen(!isAppMenuOpen)}
+                  className="flex items-center gap-1.5 sm:gap-2 hover:bg-white/5 border border-white/10 px-2 py-1 rounded transition-colors cursor-pointer outline-none select-none text-slate-100 font-sans font-bold text-sm sm:text-base tracking-wider"
+                >
+                  <img src="/kali-logo.svg" className="w-6 h-6 sm:w-7 sm:h-7 object-contain filter drop-shadow-[0_0_8px_rgba(0,188,212,0.5)] animate-pulse" alt="Kali Logo" />
+                  <span>KALI LINUX</span>
+                  <span className="text-[8px] opacity-65">▼</span>
+                </button>
+                <span className="hidden sm:inline-block text-[10px] sm:text-xs bg-primary/10 border border-primary/20 text-primary px-1.5 sm:px-2 py-0.5 rounded font-mono font-bold">ROOT SESSION</span>
               </div>
 
+              {/* Floating Application Menu Dropdown */}
+              <AnimatePresence>
+                {isAppMenuOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-[49] bg-transparent" 
+                      onClick={() => setIsAppMenuOpen(false)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute left-3 top-13 z-[100] w-52 glassmorphism bg-black/95 border border-white/15 rounded-lg shadow-2xl p-1.5 font-mono text-[11px] text-white/90 space-y-0.5"
+                    >
+                      <div className="px-2.5 py-1.5 border-b border-white/10 text-[#00BCD4] font-bold text-[10px] tracking-wider uppercase">
+                        Applications Menu
+                      </div>
+                      
+                      {[
+                        { key: "terminal", title: "CLI Shell Terminal", icon: <TermIcon size={14} className="text-primary" /> },
+                        { key: "browser", title: "Web Portfolio Browser", icon: <Monitor size={14} className="text-secondary" /> },
+                        { key: "cyber-lab", title: "SOC Cyber Intrusion Lab", icon: <Shield size={14} className="text-danger" /> },
+                        { key: "threat-map", title: "Global Threat Map Radar", icon: <Globe size={14} className="text-[#00BCD4]" /> },
+                        { key: "msf", title: "Metasploit MSF Console", icon: <Target size={14} className="text-green-400" /> },
+                        { key: "projects", title: "Projects Repository", icon: <FileText size={14} className="text-warning" /> }
+                      ].map((app) => (
+                        <button
+                          key={app.key}
+                          onClick={() => {
+                            toggleApp(app.key);
+                            setIsAppMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-2.5 py-2 hover:bg-[#00BCD4]/10 hover:text-white rounded transition-colors text-left cursor-pointer"
+                        >
+                          {app.icon}
+                          <span className="font-sans font-medium text-xs">{app.title}</span>
+                        </button>
+                      ))}
+                      
+                      <div className="border-t border-white/5 my-1" />
+                      
+                      <button
+                        onClick={() => {
+                          window.open("/Shubh_Dixit_Resume.pdf", "_blank");
+                          setIsAppMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-2.5 py-2 hover:bg-[#00BCD4]/10 hover:text-white rounded transition-colors text-left cursor-pointer text-slate-300"
+                      >
+                        <FileText size={14} className="text-white/70" />
+                        <span className="font-sans font-medium text-xs">Download Resume PDF</span>
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+
               {/* System metrics monitor */}
-              <div className="flex gap-3 font-mono text-xs items-center">
+              <div className="flex gap-1.5 sm:gap-3 font-mono text-xs items-center">
                 <SystemMonitorWidget
                   label="CPU"
                   value={sysCpu}
@@ -2025,126 +2199,129 @@ export default function Home() {
                 />
                 <button
                   onClick={() => setFlowState("RECRUITER")}
-                  className="px-3.5 py-1.5 bg-primary/20 border border-primary/40 hover:bg-primary/30 text-primary text-xs font-bold font-sans rounded transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-2 py-1 sm:px-3.5 sm:py-1.5 bg-primary/20 border border-primary/40 hover:bg-primary/30 text-primary text-[10px] sm:text-xs font-bold font-sans rounded transition-colors flex items-center gap-1 sm:gap-1.5 cursor-pointer"
                 >
-                  <User size={14} /> RECRUITER VIEW
+                  <User size={12} className="sm:w-3.5 sm:h-3.5" />
+                  <span className="hidden md:inline">RECRUITER VIEW</span>
+                  <span className="md:hidden">CV</span>
                 </button>
               </div>
             </header>
 
             {/* Application Workspace Area */}
-            <main className="z-10 flex-1 relative p-6">
-              {/* Desktop Icons Left */}
-              <div className="absolute left-6 top-6 flex flex-col gap-6 z-20">
+            <main className="z-10 flex-1 relative p-4 sm:p-6 overflow-hidden">
+              {/* Desktop Icons */}
+              <div className="absolute left-4 top-4 right-4 md:right-auto md:w-24 flex md:flex-col flex-wrap justify-start gap-4 md:gap-6 z-0 max-h-[calc(100vh-160px)] overflow-y-auto pointer-events-auto p-1">
                 <button
                   onClick={() => toggleApp("terminal")}
-                  className={`flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent ${
-                    openApps.terminal ? "border-primary/20 bg-primary/5" : ""
-                  } w-24 transition-colors cursor-pointer`}
+                  className={`flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent ${
+                    openApps.terminal && !minimizedApps.terminal ? "border-primary/20 bg-primary/5" : ""
+                  } w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer`}
                 >
-                  <TermIcon size={36} className="text-primary" />
-                  <span className="text-xs font-mono text-center">CLI SHELL</span>
+                  <TermIcon size={32} className="w-8 h-8 md:w-9 md:h-9 text-primary" />
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">CLI SHELL</span>
                 </button>
 
                 <button
                   onClick={() => toggleApp("browser")}
-                  className={`flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent ${
-                    openApps.browser ? "border-secondary/20 bg-secondary/5" : ""
-                  } w-24 transition-colors cursor-pointer`}
+                  className={`flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent ${
+                    openApps.browser && !minimizedApps.browser ? "border-secondary/20 bg-secondary/5" : ""
+                  } w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer`}
                 >
-                  <Monitor size={36} className="text-secondary animate-pulse" />
-                  <span className="text-xs font-mono text-center">BROWSER</span>
+                  <Monitor size={32} className="w-8 h-8 md:w-9 md:h-9 text-secondary animate-pulse" />
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">BROWSER</span>
                 </button>
 
                 <button
                   onClick={() => toggleApp("cyber-lab")}
-                  className={`flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent ${
-                    openApps["cyber-lab"] ? "border-danger/20 bg-danger/5" : ""
-                  } w-24 transition-colors cursor-pointer`}
+                  className={`flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent ${
+                    openApps["cyber-lab"] && !minimizedApps["cyber-lab"] ? "border-danger/20 bg-danger/5" : ""
+                  } w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer`}
                 >
-                  <Shield size={36} className="text-danger" />
-                  <span className="text-xs font-mono text-center">NET LAB</span>
+                  <Shield size={32} className="w-8 h-8 md:w-9 md:h-9 text-danger" />
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">NET LAB</span>
                 </button>
 
                 <button
                   onClick={() => toggleApp("threat-map")}
-                  className={`flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent ${
-                    openApps["threat-map"] ? "border-[#00BCD4]/20 bg-[#00BCD4]/5" : ""
-                  } w-24 transition-colors cursor-pointer`}
+                  className={`flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent ${
+                    openApps["threat-map"] && !minimizedApps["threat-map"] ? "border-[#00BCD4]/20 bg-[#00BCD4]/5" : ""
+                  } w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer`}
                 >
-                  <Globe size={36} className="text-[#00BCD4]" />
-                  <span className="text-xs font-mono text-center">THREAT MAP</span>
+                  <Globe size={32} className="w-8 h-8 md:w-9 md:h-9 text-[#00BCD4]" />
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight font-bold">THREAT MAP</span>
                 </button>
 
                 <button
                   onClick={() => toggleApp("msf")}
-                  className={`flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent ${
-                    openApps["msf"] ? "border-green-500/20 bg-green-500/5" : ""
-                  } w-24 transition-colors cursor-pointer`}
+                  className={`flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent ${
+                    openApps["msf"] && !minimizedApps["msf"] ? "border-green-500/20 bg-green-500/5" : ""
+                  } w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer`}
                 >
-                  <Target size={36} className="text-green-400" />
-                  <span className="text-xs font-mono text-center">MSF</span>
+                  <Target size={32} className="w-8 h-8 md:w-9 md:h-9 text-green-400" />
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">MSF</span>
                 </button>
 
                 <button
                   onClick={() => toggleApp("projects")}
-                  className={`flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent ${
-                    openApps.projects ? "border-warning/20 bg-warning/5" : ""
-                  } w-24 transition-colors cursor-pointer`}
+                  className={`flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent ${
+                    openApps.projects && !minimizedApps.projects ? "border-warning/20 bg-warning/5" : ""
+                  } w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer`}
                 >
-                  <FileText size={36} className="text-warning" />
-                  <span className="text-xs font-mono text-center">PROJECTS</span>
+                  <FileText size={32} className="w-8 h-8 md:w-9 md:h-9 text-warning" />
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">PROJECTS</span>
                 </button>
 
                 <button
                   onClick={() => window.open("/Shubh_Dixit_Resume.pdf", "_blank")}
-                  className="flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent w-24 transition-colors cursor-pointer text-slate-300 hover:text-white"
+                  className="flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer text-slate-300 hover:text-white"
                 >
-                  <FileText size={36} className="text-white/80" />
-                  <span className="text-xs font-mono text-center">RESUME PDF</span>
+                  <FileText size={32} className="w-8 h-8 md:w-9 md:h-9 text-white/80" />
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">RESUME PDF</span>
                 </button>
 
                 <button
                   onClick={() => window.open("https://github.com/Shubhdix9", "_blank")}
-                  className="flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent w-24 transition-colors cursor-pointer text-slate-300 hover:text-white"
+                  className="flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer text-slate-300 hover:text-white"
                 >
-                  <svg className="w-9 h-9 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-8 h-8 md:w-9 md:h-9 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 .5a12 12 0 00-3.79 23.4c.6.11.82-.26.82-.58v-2.17c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.1-.75.08-.74.08-.74 1.22.09 1.86 1.26 1.86 1.26 1.08 1.85 2.83 1.31 3.52 1 .11-.78.42-1.31.76-1.61-2.66-.3-5.46-1.33-5.46-5.92 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.29-1.23 3.29-1.23.67 1.66.25 2.88.13 3.18.77.84 1.23 1.91 1.23 3.22 0 4.6-2.81 5.61-5.48 5.91.43.37.81 1.1.81 2.22v3.29c0 .32.21.69.82.58A12 12 0 0012 .5z"/>
                   </svg>
-                  <span className="text-xs font-mono text-center">GITHUB</span>
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">GITHUB</span>
                 </button>
 
                 <button
                   onClick={() => window.open("https://www.linkedin.com/in/shubhdixit0912/", "_blank")}
-                  className="flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent w-24 transition-colors cursor-pointer text-slate-300 hover:text-white"
+                  className="flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer text-slate-300 hover:text-white"
                 >
-                  <svg className="w-9 h-9 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-8 h-8 md:w-9 md:h-9 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0h4.8v2.2h.07c.67-1.2 2.3-2.47 4.73-2.47 5.06 0 6 3.33 6 7.66V24h-5v-7.58c0-1.81-.03-4.14-2.52-4.14-2.52 0-2.9 1.97-2.9 4v7.72h-5V8z" />
                   </svg>
-                  <span className="text-xs font-mono text-center">LINKEDIN</span>
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">LINKEDIN</span>
                 </button>
 
                 <button
                   onClick={() => window.open("https://leetcode.com/u/GhostKernel09", "_blank")}
-                  className="flex flex-col items-center gap-2 p-2 rounded hover:bg-white/5 border border-transparent w-24 transition-colors cursor-pointer text-slate-300 hover:text-white"
+                  className="flex flex-col items-center gap-1 md:gap-2 p-1.5 md:p-2 rounded hover:bg-white/5 border border-transparent w-[72px] sm:w-20 md:w-24 transition-colors cursor-pointer text-slate-300 hover:text-white"
                 >
-                  <svg className="w-9 h-9 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-8 h-8 md:w-9 md:h-9 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M16.102 17.93l-2.69 2.607c-.466.451-1.111.696-1.744.696a2.285 2.285 0 0 1-1.744-.696L3.666 14.3a2.435 2.435 0 0 1 0-3.437l5.568-5.399a2.285 2.285 0 0 1 1.744-.696c.632 0 1.278.245 1.744.696l2.69 2.607a.724.724 0 0 1 0 1.027.766.766 0 0 1-1.059 0l-2.69-2.607c-.19-.184-.519-.184-.709 0l-5.568 5.399a.913.913 0 0 0 0 1.283l6.257 6.256c.19.184.518.184.709 0l2.69-2.607a.766.766 0 0 1 1.059 0 .724.724 0 0 1 0 1.027zm4.232-5.467h-7.662a.747.747 0 0 1-.767-.726c0-.4.344-.726.767-.726h7.662c.423 0 .767.325.767.726a.747.747 0 0 1-.767.726zm-2.029-4.88h-3.604a.747.747 0 0 1-.767-.726c0-.4.344-.726.767-.726h3.604c.423 0 .767.325.767.726a.747.747 0 0 1-.767.726z"/>
                   </svg>
-                  <span className="text-xs font-mono text-center">LEETCODE</span>
+                  <span className="text-[9px] sm:text-xs font-mono text-center tracking-tight leading-tight">LEETCODE</span>
                 </button>
               </div>
 
               {/* Windows Area */}
               <AnimatePresence>
                 {/* 1. CLI TERMINAL SHELL */}
-                {openApps.terminal && (
+                {openApps.terminal && !minimizedApps.terminal && (
                   <WindowFrame
                     key="terminal"
                     title="kali@kali: ~"
                     icon={<TermIcon size={16} />}
-                    isOpen={openApps.terminal}
+                    isOpen={openApps.terminal && !minimizedApps.terminal}
                     onClose={() => toggleApp("terminal")}
+                    onMinimize={() => minimizeApp("terminal")}
                     onFocus={() => focusApp("terminal")}
                     zIndex={zIndices.terminal}
                     initialX={100}
@@ -2157,13 +2334,14 @@ export default function Home() {
                 )}
 
                 {/* 2. Welcome Browser Welcome App */}
-                {openApps.browser && (
+                {openApps.browser && !minimizedApps.browser && (
                   <WindowFrame
                     key="browser"
                     title="Browser"
                     icon={<Monitor size={16} />}
-                    isOpen={openApps.browser}
+                    isOpen={openApps.browser && !minimizedApps.browser}
                     onClose={() => toggleApp("browser")}
+                    onMinimize={() => minimizeApp("browser")}
                     onFocus={() => focusApp("browser")}
                     zIndex={zIndices.browser}
                     initialX={160}
@@ -2176,13 +2354,14 @@ export default function Home() {
                 )}
 
                 {/* 3. INTRUSION INJECTION CYBER LAB */}
-                {openApps["cyber-lab"] && (
+                {openApps["cyber-lab"] && !minimizedApps["cyber-lab"] && (
                   <WindowFrame
                     key="cyber-lab"
                     title="SOC Cybersecurity Intrusion Lab"
                     icon={<Shield size={16} />}
-                    isOpen={openApps["cyber-lab"]}
+                    isOpen={openApps["cyber-lab"] && !minimizedApps["cyber-lab"]}
                     onClose={() => toggleApp("cyber-lab")}
+                    onMinimize={() => minimizeApp("cyber-lab")}
                     onFocus={() => focusApp("cyber-lab")}
                     zIndex={zIndices["cyber-lab"]}
                     initialX={220}
@@ -2195,13 +2374,14 @@ export default function Home() {
                 )}
 
                 {/* 4. PROJECTS SPEC SHEET */}
-                {openApps.projects && (
+                {openApps.projects && !minimizedApps.projects && (
                   <WindowFrame
                     key="projects"
                     title="Core Projects Repository"
                     icon={<FileText size={16} />}
-                    isOpen={openApps.projects}
+                    isOpen={openApps.projects && !minimizedApps.projects}
                     onClose={() => toggleApp("projects")}
+                    onMinimize={() => minimizeApp("projects")}
                     onFocus={() => focusApp("projects")}
                     zIndex={zIndices.projects}
                     initialX={260}
@@ -2214,13 +2394,14 @@ export default function Home() {
                 )}
 
                 {/* 5. GLOBAL THREAT MAP */}
-                {openApps["threat-map"] && (
+                {openApps["threat-map"] && !minimizedApps["threat-map"] && (
                   <WindowFrame
                     key="threat-map"
                     title="Global Threat Intelligence Map"
                     icon={<Globe size={16} />}
-                    isOpen={openApps["threat-map"]}
+                    isOpen={openApps["threat-map"] && !minimizedApps["threat-map"]}
                     onClose={() => toggleApp("threat-map")}
+                    onMinimize={() => minimizeApp("threat-map")}
                     onFocus={() => focusApp("threat-map")}
                     zIndex={zIndices["threat-map"]}
                     initialX={80}
@@ -2233,13 +2414,14 @@ export default function Home() {
                 )}
 
                 {/* 6. MSF CONSOLE */}
-                {openApps["msf"] && (
+                {openApps["msf"] && !minimizedApps["msf"] && (
                   <WindowFrame
                     key="msf"
                     title="Metasploit Framework Console"
                     icon={<Target size={16} />}
-                    isOpen={openApps["msf"]}
+                    isOpen={openApps["msf"] && !minimizedApps["msf"]}
                     onClose={() => toggleApp("msf")}
+                    onMinimize={() => minimizeApp("msf")}
                     onFocus={() => focusApp("msf")}
                     zIndex={zIndices["msf"]}
                     initialX={140}
@@ -2253,13 +2435,84 @@ export default function Home() {
               </AnimatePresence>
             </main>
 
-            {/* Bottom Status bar */}
-            <footer className="z-50 h-10 w-full glassmorphism flex justify-between items-center px-4 border-t border-white/10 bg-black/45 font-mono text-[11px] opacity-80">
-              <div className="flex gap-4">
+            {/* Bottom Status bar / Taskbar Dock */}
+            <footer className="z-50 h-11 w-full glassmorphism flex justify-between items-center px-4 border-t border-white/10 bg-black/85 font-mono text-[11px] shadow-lg">
+              {/* Left: OS Metadata */}
+              <div className="hidden md:flex gap-4 text-white/50">
                 <span>OS TYPE: KALI GNU/LINUX</span>
                 <span>KERNEL: 6.12.0-kali-amd64</span>
               </div>
-              <div>(c) 2026 Shubh Dixit. Environment: LightDM/XFCE.</div>
+
+              {/* Center: Running Apps Switcher Dock */}
+              <div className="flex-1 md:flex-initial flex justify-center items-center gap-2 overflow-x-auto py-0.5">
+                {Object.keys(openApps).map((appKey) => {
+                  const isOpen = openApps[appKey];
+                  if (!isOpen) return null;
+
+                  // Get icon and title for the app
+                  let appIcon = <TermIcon size={14} />;
+                  let appTitle = "Terminal";
+                  let activeColor = "border-primary/50 text-primary";
+                  
+                  if (appKey === "terminal") {
+                    appIcon = <TermIcon size={14} className="text-primary" />;
+                    appTitle = "Shell";
+                    activeColor = "border-primary/50 text-primary bg-primary/5";
+                  } else if (appKey === "browser") {
+                    appIcon = <Monitor size={14} className="text-secondary" />;
+                    appTitle = "Browser";
+                    activeColor = "border-secondary/50 text-secondary bg-secondary/5";
+                  } else if (appKey === "cyber-lab") {
+                    appIcon = <Shield size={14} className="text-danger" />;
+                    appTitle = "Net Lab";
+                    activeColor = "border-danger/50 text-danger bg-danger/5";
+                  } else if (appKey === "threat-map") {
+                    appIcon = <Globe size={14} className="text-[#00BCD4]" />;
+                    appTitle = "Threat Map";
+                    activeColor = "border-[#00BCD4]/50 text-[#00BCD4] bg-[#00BCD4]/5";
+                  } else if (appKey === "msf") {
+                    appIcon = <Target size={14} className="text-green-400" />;
+                    appTitle = "MSF";
+                    activeColor = "border-green-500/50 text-green-400 bg-green-500/5";
+                  } else if (appKey === "projects") {
+                    appIcon = <FileText size={14} className="text-warning" />;
+                    appTitle = "Projects";
+                    activeColor = "border-warning/50 text-warning bg-warning/5";
+                  }
+
+                  const isMinimized = minimizedApps[appKey];
+                  const openNonMinApps = Object.keys(openApps).filter(k => openApps[k] && !minimizedApps[k]);
+                  const isFocused = isOpen && !isMinimized && openNonMinApps.every(k => zIndices[appKey] >= zIndices[k]);
+
+                  return (
+                    <button
+                      key={appKey}
+                      onClick={() => handleDockItemClick(appKey)}
+                      className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded border transition-all cursor-pointer text-[10px] md:text-xs font-sans font-semibold ${
+                        isFocused
+                          ? `${activeColor} border-white/20 shadow-md`
+                          : isMinimized
+                          ? "border-white/5 bg-transparent text-white/30 opacity-50 hover:opacity-80"
+                          : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                      }`}
+                      title={appTitle}
+                    >
+                      {appIcon}
+                      <span className="hidden sm:inline">{appTitle}</span>
+                      
+                      {/* Active indicator dot under the item */}
+                      {isFocused && (
+                        <span className="w-1 h-1 rounded-full bg-current absolute bottom-0.5 left-1/2 -translate-x-1/2 hidden sm:block" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right: Copyright */}
+              <div className="hidden md:block text-white/50 text-right">
+                (c) 2026 Shubh Dixit. Environment: LightDM/XFCE.
+              </div>
             </footer>
           </motion.div>
         )}
